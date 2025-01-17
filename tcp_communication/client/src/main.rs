@@ -1,40 +1,32 @@
-use std::io::{self, Write, Read};
-use std::net::TcpStream; // for tcp connetion
-use std::thread;
+use std::io::{Read, Write}; 
+use std::net::TcpStream; // TcpStream for network communication
+use std::io::{self, Write};
 
-fn main() -> std::io::Result<()> {
-    let mut stream = TcpStream::connect("127.0.0.1:8080")?; // connect to the server
-    println!("Connected to the server!");
+fn main() -> io::Result<()> {
+    let mut stream = TcpStream::connect("127.0.0.1:8080")?; // Connect to the server
+    println!("Client 1 Connected to the server!"); // successful connection
 
-    let mut read_stream = stream.try_clone()?;
-    thread::spawn(move || {
-        let mut buffer = [0; 1024]; //storage 
-        loop {
-            match read_stream.read(&mut buffer) { // read data from the server
-                Ok(0) => {
-                    println!("Server disconnected");
-                    break;
-                }
-                Ok(_) => {
-                    let response = String::from_utf8_lossy(&buffer); // convert the data to string
-                    println!("Server: {}", response.trim_end());
-                }
-                Err(e) => {
-                    eprintln!("Failed to read from server: {}", e);
-                    break;
-                }
-            }
-        }
-    });
-
-    let mut input = String::new(); 
     loop {
-        input.clear();
-        io::stdin().read_line(&mut input)?; //wait for user input to the server 
-        if input.trim().is_empty() { //if empty then terminate loop
+        let mut message = String::new(); // store the message
+        print!("Enter message for server: "); // input
+        io::stdout().flush()?; // Flush the standard output to ensure the prompt is displayed
+
+        io::stdin().read_line(&mut message)?; // Read user input from standard input
+
+        if message.trim() == "exit" { // Check if the user wants to exit
+            println!("Disconnecting from the server..."); 
             break;
         }
-        stream.write_all(input.as_bytes())?;
+
+        stream.write_all(message.as_bytes())?; // Send the message to the server
+
+        let mut buffer = [0; 1024]; // Buffer to store the server's response
+        let bytes_read = stream.read(&mut buffer)?; // Read the server's response
+
+        if bytes_read > 0 { // check there is a response
+            let response = String::from_utf8_lossy(&buffer[..bytes_read]); // Convert bytes to string
+            println!("Server: {}", response.trim_end()); 
+        }
     }
 
     Ok(())
