@@ -1,0 +1,68 @@
+1. Simple Client
+Build a simple client that can run the two following commands:
+./simple --mode=cache --times=10
+./simple --mode=read
+The cache mode should listen to a websocket for given number of times(seconds) only for the USD
+prices of BTC. Example is given here
+https://binance-docs.github.io/apidocs/websocket_api/en/#symbol-price-ticker, any other websocket is
+also fine like kucoin, gemini, gateio, bybit etc. Calculate the average of these prices, say XXX. Then
+print "Cache complete. The average USD price of BTC is: XXX"
+Save both the result of the aggregate and the data points used to create the aggregate to a file.
+The read mode should just read from the file and print the values to the terminal.
+
+2. Simulated distributed client
+Extend the solution to Q1 by instantiating 5 client processes and one aggregator process.
+a. All client processes start at the same tick of the time, say 10:01:01 AM.
+b. Client process read values from the websocket for 10 seconds and computes the average and
+sends it to the aggregator process. 
+c. Aggregator process waits for the average values from all the 5 processes. Upon getting all the
+values it computes yet another average and displays on the screen.
+
+3. Using signatures
+Extend the solution to Q2 where the clients send the signed messages to the aggregator. And the
+aggregator validates the signatures and then computes the average of averages. Any signature
+scheme is fine. Set up the premise such that all the processes knows the public keys of all other
+processes before hand.
+
+
+
+//Easy ========>explanation
+1. Simple Client
+- Build a simple client program that can execute two commands:
+  - `./simple --mode=cache --times=10`: This command should connect to a websocket and retrieve the USD prices of BTC for a specified 
+  number of seconds (in this case, 10). You can use any websocket API that provides BTC price data, such as Binance, KuCoin, 
+  Gemini, Gate.io, or Bybit.
+  - Calculate the average BTC price from the data collected during the specified time.
+  - Print a message: "Cache complete. The average USD price of BTC is: [average price]".
+  - Save both the calculated average and the individual data points to a file.
+  - `./simple --mode=read`: This command should read the saved data from the file and print it to the terminal.
+
+
+  2. Simulated Distributed Client
+- Expand the solution from step 1 by creating five client processes and one aggregator process:
+  - All client processes should start at the same exact time.
+  - Each client process should connect to the websocket, collect BTC price data for a period of 10 seconds, compute the average price, 
+  and send this average to the aggregator process.
+  - The aggregator process should wait until it receives average prices from all five client processes. Once received, 
+  it should calculate another average 
+  based on these five values and display it on the screen.
+
+
+  3. Using Signatures
+- Enhance the solution from step 2 by introducing message signing:
+  - Clients should sign their average price messages before sending them to the aggregator.
+  - The aggregator should verify the signatures to ensure the messages are authentic.
+  - The aggregator then computes the average of the verified averages.
+  - Make sure each process is aware of the public keys of all other processes beforehand, so they can validate each other's signatures.
+
+
+
+
+
+
+
+cargo add tokio --features full
+cargo add tokio-tungstenite
+cargo add serde_json
+
+use futures_util::StreamExt;
