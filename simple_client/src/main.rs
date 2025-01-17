@@ -85,6 +85,7 @@ async fn client_process(id: usize,duration: u64,tx: mpsc::Sender<(usize, f32, Si
     let start_time = Instant::now();
 
 
+    // chnage in this loop
     while start_time.elapsed() < Duration::from_secs(duration) 
     {
         match socket.next().await 
@@ -111,7 +112,7 @@ async fn client_process(id: usize,duration: u64,tx: mpsc::Sender<(usize, f32, Si
             _ => {break} // Break the loop if the stream ends
         }
     
-        // if the time take grater than the duration then break the loop
+        //  if the time take grater than the duration then break the loop
         if start_time.elapsed() >= Duration::from_secs(duration) {
             break;
         }
