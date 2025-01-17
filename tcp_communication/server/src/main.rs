@@ -46,11 +46,10 @@ fn main() -> std::io::Result<()> {
                     *counter 
                 };
 
-                let client_thread = thread::spawn(move || { // Spawn a new thread for the client
+                let client_counter = Arc::clone(&client_counter);
+                thread::spawn(move || {                 // Spawn a new thread for the client
                     handle_client(stream, client_id); // Handle the client in the new thread
                 });
-
-                client_thread.join().unwrap_or_else(|_| println!("Client {} thread failed.", client_id)); 
             }
             Err(e) => eprintln!("Connection failed: {}", e),
         }
