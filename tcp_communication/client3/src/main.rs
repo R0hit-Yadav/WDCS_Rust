@@ -4,7 +4,7 @@ use std::thread;
 
 fn main() -> std::io::Result<()> {
     let mut stream = TcpStream::connect("127.0.0.1:8080")?; // connect to the server
-    println!("Client 1 is Connected to the server!");
+    println!("Client 3 is Connected to the server!");
 
     let mut read_stream = stream.try_clone()?;
     thread::spawn(move || {
