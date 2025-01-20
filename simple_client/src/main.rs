@@ -11,6 +11,7 @@ use std::fs;
 use ed25519_dalek::{Signer, Verifier};
 
 
+
 #[tokio::main]
 pub async fn main() { // using clap for argument parsing
     let matches = Command::new("WebSocket Client") 
@@ -118,7 +119,7 @@ async fn client_process(id: usize,duration: u64,tx: mpsc::Sender<(usize, f32, Si
         }
     }
 
-    if !price_vec.is_empty()// check if the vector is not empty
+    if !price_vec.is_empty() // check if the vector is not empty
     {
         let avg = price_vec.iter().sum::<f32>() / price_vec.len() as f32; //  calculate the avg price
         println!("Client no {} avg is: {}", id, avg);
