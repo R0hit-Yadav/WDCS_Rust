@@ -21,6 +21,7 @@ fn handle_client(mut stream: TcpStream,aggregator_data: Arc<Mutex<Vec<f32>>>) {
         Ok(size) => {
             if let Ok(data) = serde_json::from_slice::<ClientData>(&buffer[..size]) { //decode recived JSON data into client data
 
+                println!("");
                 println!("Client ID: {} Name: {} is Connected",data.client_id,data.name);
                 let public_key_bytes: [u8; 32] = data.public_key.try_into().expect("Invalid public key length");
                 let public_key = VerifyingKey::from_bytes(&public_key_bytes).expect("Failed to parse public key");
@@ -38,7 +39,18 @@ fn handle_client(mut stream: TcpStream,aggregator_data: Arc<Mutex<Vec<f32>>>) {
                     println!("Client ID: {} Name: {} Verified and AVG: {:.5}",data.client_id,data.name, data.avg_price);
                     println!("====================================");
                     let mut aggregator_data = aggregator_data.lock().unwrap();
+
                     aggregator_data.push(data.avg_price);//pused to aggregator
+                    println!("{:?}",aggregator_data);
+                    if !aggregator_data.is_empty() 
+                    {
+                        let overall_avg: f32 = aggregator_data.iter().sum::<f32>() / aggregator_data.len() as f32;
+                        println!("Overall Average BTC Price: {:.2}", overall_avg);
+                    } 
+                    else 
+                    {
+                        println!("No valid data received.");
+                    }
                 } 
                 else 
                 {
@@ -72,14 +84,5 @@ fn main() {
         }
     }
 
-    let aggregator_data = aggregator_data.lock().unwrap(); //aggregate final avg and print
-    if !aggregator_data.is_empty() 
-    {
-        let overall_avg: f32 = aggregator_data.iter().sum::<f32>() / aggregator_data.len() as f32;
-        println!("Overall average BTC price: {:.2}", overall_avg);
-    } 
-    else 
-    {
-        println!("No valid data received.");
-    }
+  
 }
