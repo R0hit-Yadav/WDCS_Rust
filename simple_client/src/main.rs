@@ -62,6 +62,9 @@ async fn distributed_client(duration: u64)  // function to  simulate distributed
 
         public_keys.push(signing_key.verifying_key()); // store the public  keys
         signing_keys.push(signing_key);
+
+        println!("Signing Key {:?}",signing_keys);
+        println!("Public Keys {:?}",public_keys);
     }
 
     for i in 0..n_clients {
