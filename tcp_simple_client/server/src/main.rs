@@ -11,6 +11,7 @@ struct ClientData { // client data
     avg_price: f32,
     signature: Vec<u8>,
     public_key: Vec<u8>,
+    name:String,
 }
 
 fn handle_client(mut stream: TcpStream,aggregator_data: Arc<Mutex<Vec<f32>>>) {
@@ -19,6 +20,8 @@ fn handle_client(mut stream: TcpStream,aggregator_data: Arc<Mutex<Vec<f32>>>) {
     match stream.read(&mut buffer) { // read coming data
         Ok(size) => {
             if let Ok(data) = serde_json::from_slice::<ClientData>(&buffer[..size]) { //decode recived JSON data into client data
+
+                println!("Client ID: {} Name: {} is Connected",data.client_id,data.name);
                 let public_key_bytes: [u8; 32] = data.public_key.try_into().expect("Invalid public key length");
                 let public_key = VerifyingKey::from_bytes(&public_key_bytes).expect("Failed to parse public key");
                 //convert keys into fixed sized array
@@ -28,17 +31,18 @@ fn handle_client(mut stream: TcpStream,aggregator_data: Arc<Mutex<Vec<f32>>>) {
                 // println!("Signature Key :{:?}",signature_bytes); // to see keys
                 // println!("Public Key :{:?}",public_key);
 
-                let signed_data = format!("{}{:?}", data.client_id, data.avg_price); //original message of client
+                let signed_data = format!("{}{}{}", data.client_id, data.avg_price, data.name); //original message of client
 
                 if public_key.verify(signed_data.as_bytes(), &signature).is_ok() //verify 
                 {     
-                    println!("Verified client {} with avg price: {:.5}", data.client_id, data.avg_price);
+                    println!("Client ID: {} Name: {} Verified and AVG: {:.5}",data.client_id,data.name, data.avg_price);
+                    println!("====================================");
                     let mut aggregator_data = aggregator_data.lock().unwrap();
                     aggregator_data.push(data.avg_price);//pused to aggregator
                 } 
                 else 
                 {
-                    println!("Failed to verify client {}", data.client_id);
+                    println!("Failed to verify Client ID: {} Name: {}", data.client_id,data.name);
                 }
             } 
             else 
