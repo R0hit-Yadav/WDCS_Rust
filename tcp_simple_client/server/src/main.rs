@@ -21,7 +21,11 @@ fn handle_client(mut stream: TcpStream,aggregator_data: Arc<Mutex<Vec<f32>>>) {
         Ok(size) => {
             if let Ok(data) = serde_json::from_slice::<ClientData>(&buffer[..size]) { //decode recived JSON data into client data
 
-                println!("Client ID: {} Name: {} is Connected",data.client_id,data.name);
+                println!("========================================");
+                println!("|| Client ID: {} ",data.client_id);
+                println!("|| Name: {} ",data.name);
+                println!("|| Sucessfully Connected!!");
+                println!("");
                 let public_key_bytes: [u8; 32] = data.public_key.try_into().expect("Invalid public key length");
                 let public_key = VerifyingKey::from_bytes(&public_key_bytes).expect("Failed to parse public key");
                 //convert keys into fixed sized array
@@ -31,14 +35,28 @@ fn handle_client(mut stream: TcpStream,aggregator_data: Arc<Mutex<Vec<f32>>>) {
                 // println!("Signature Key :{:?}",signature_bytes); // to see keys
                 // println!("Public Key :{:?}",public_key);
 
-                let signed_data = format!("{}{}{}", data.client_id, data.avg_price, data.name); //original message of client
+                let signed_data = format!("{}{:.5}{}", data.client_id, data.avg_price, data.name); //original message of client
 
                 if public_key.verify(signed_data.as_bytes(), &signature).is_ok() //verify 
-                {     
-                    println!("Client ID: {} Name: {} Verified and AVG: {:.5}",data.client_id,data.name, data.avg_price);
-                    println!("====================================");
+                {
+                    println!("|| Client ID: {} ",data.client_id);     
+                    println!("|| Name: {} ",data.name);
+                    println!("|| Verified And AVG IS: {:.5}",data.avg_price);
+                    println!("========================================");
                     let mut aggregator_data = aggregator_data.lock().unwrap();
+
                     aggregator_data.push(data.avg_price);//pused to aggregator
+                    // println!("{:?}",aggregator_data); // all client avg
+                    if !aggregator_data.is_empty() 
+                    {
+                        let overall_avg: f32 = aggregator_data.iter().sum::<f32>() / aggregator_data.len() as f32;
+                        println!("|| Overall Average BTC Price: {:.5}", overall_avg);
+                        println!("========================================");
+                    } 
+                    else 
+                    {
+                        println!("No valid data received.");
+                    }
                 } 
                 else 
                 {
@@ -72,14 +90,5 @@ fn main() {
         }
     }
 
-    let aggregator_data = aggregator_data.lock().unwrap(); //aggregate final avg and print
-    if !aggregator_data.is_empty() 
-    {
-        let overall_avg: f32 = aggregator_data.iter().sum::<f32>() / aggregator_data.len() as f32;
-        println!("Overall average BTC price: {:.2}", overall_avg);
-    } 
-    else 
-    {
-        println!("No valid data received.");
-    }
+  
 }
