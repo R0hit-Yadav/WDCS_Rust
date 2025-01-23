@@ -19,8 +19,6 @@ struct ClientData { //client data
 #[tokio::main]
 async fn main() {
 
-    loop {
-        
         println!("Enter Your Name:");
         let mut name = String::new();
         io::stdin().read_line(&mut name).expect("Failed to Read Input");
@@ -47,6 +45,8 @@ async fn main() {
                 _ => println!("Please enter a valid number (Enter 5 or Grater then)."),
             }
         }
+
+    loop {
     
         let mut csprng = OsRng;
         let mut random_bytes = [0u8; 32];
@@ -89,7 +89,7 @@ async fn main() {
                 avg_price,
                 signature: signature.to_bytes().to_vec(),
                 public_key: public_key.to_vec(),
-                name,
+                name:name.clone(),
             };
     
             if let Ok(mut stream) = TcpStream::connect("127.0.0.1:8080") {//send data to server
@@ -99,16 +99,8 @@ async fn main() {
                 println!("Failed to connect to server.");
             }
         }
+         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
 
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).expect("Failed to read input");
-
-        let input = input.trim();
-        if input.eq_ignore_ascii_case("exit") 
-        {
-            println!("Exiting the program.");
-            break;
-        }
     }
 
 }
