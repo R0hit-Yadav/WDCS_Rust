@@ -16,6 +16,7 @@ struct ClientData { //client data
     name:String,
 }
 
+
 #[tokio::main]
 async fn main() {
 
@@ -29,7 +30,7 @@ async fn main() {
     
         let client_id=id.trim().parse().expect("Invaild number");
     
-        let mut times = 0;
+        let times;
         loop {
             
             println!("How Many Times You Want Buy BTC :");
