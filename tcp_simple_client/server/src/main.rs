@@ -1,7 +1,7 @@
 use std::net::{TcpListener, TcpStream};//listen server and active connetion 
 use std::io::Read; // read data from stram
 use std::sync::{Arc, Mutex};
-use std::thread::{self, sleep};//for spwan thread
+use std::thread::{self};//for spwan thread
 use ed25519_dalek::{Signature, Verifier, VerifyingKey}; // for verify signatures
 use serde::{Deserialize, Serialize};
 
@@ -13,6 +13,7 @@ struct ClientData { // client data
     public_key: Vec<u8>,
     name:String,
 }
+
 
 fn handle_client(mut stream: TcpStream,shared_data: Arc<Mutex<Vec<ClientData>>>,aggregator_data: Arc<Mutex<Vec<f32>>>) {
     let mut buffer: [u8; 512] = [0u8; 512];// temporary  torage 
